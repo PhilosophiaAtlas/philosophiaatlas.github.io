@@ -1,0 +1,10 @@
+---
+import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import {getWiki} from '../../lib/wiki.mjs';
+const wiki=await getWiki();
+---
+<Layout title="Trang đặc biệt"><h1>Trang đặc biệt</h1>
+<h2>Thống kê</h2><p>{wiki.articles.length} bài viết, {Object.keys(wiki.categories).length} thể loại, {wiki.diagnostics.length} cảnh báo liên kết.</p>
+<h2>Bài chưa tồn tại</h2><ul>{wiki.diagnostics.map(d=><li>{d.target} · <a href={'/wiki/'+d.article+'/'}>{d.article}</a></li>)}</ul>
+<h2>Bài không có liên kết đến</h2><ul>{wiki.articles.filter(a=>!wiki.backlinks[a.id]?.length).map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a></li>)}</ul>
+</Layout>

@@ -1,0 +1,14 @@
+---
+import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import {getWiki} from '../../lib/wiki.mjs';
+export async function getStaticPaths(){const wiki=await getWiki();return wiki.articles.map(a=>({params:{id:a.id},props:{article:a,related:(wiki.backlinks[a.id]??[]).map(id=>wiki.articles.find(x=>x.id===id)).filter(Boolean)}}));}
+const {article:a,related}=Astro.props;
+---
+<Layout title={a.title} toc={a.toc}>
+<h1>{a.title}</h1><p class="subtitle">{a.originalTitle}</p>
+<p class="meta">Bài nháp · <a href={'https://github.com/PhilosophiaAtlas/knowledge-base/blob/main/articles/'+a.path}>Xem mã nguồn bài</a></p>
+<article set:html={a.html}/>
+<h2>Liên kết đến bài này</h2>
+{related.length?<ul>{related.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a></li>)}</ul>:<p>Chưa có liên kết đến.</p>}
+<p class="meta">Thể loại: {a.categories.join(' · ')}</p>
+</Layout>
