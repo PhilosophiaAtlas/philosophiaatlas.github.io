@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "test": "node --test .vendor/wiki-core/test/compiler.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles"
+    "test": "node --test .vendor/wiki-core/test/compiler.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles",
+    "test:browser": "node --test tests/preview.browser.test.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -18,6 +19,7 @@
     "yaml": "2.8.1"
   },
   "devDependencies": {
-    "pagefind": "1.3.0"
+    "pagefind": "1.3.0",
+    "playwright": "1.55.0"
   }
 }
