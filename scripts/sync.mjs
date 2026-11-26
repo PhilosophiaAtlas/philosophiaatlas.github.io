@@ -43,7 +43,7 @@ for(const [name,entry] of Object.entries(lock.components)){
  if(!exists){await mkdir(dir);git(['init'],dir);git(['remote','add','origin',url],dir);}
  if(git(['config','--local','--get','remote.origin.url'],dir)!==url)throw Error('Unexpected origin: '+name);
  if(git(['status','--porcelain'],dir))throw Error('Dirty component: '+name);
- git(['fetch','--depth=1','origin',entry.ref],dir,name==='knowledge-base'&&!!token);
+ git(['fetch',name==='knowledge-base'?'--depth=200':'--depth=1','origin',entry.ref],dir,name==='knowledge-base'&&!!token);
  git(['checkout','--quiet','--detach',entry.ref],dir);
  if(git(['rev-parse','HEAD'],dir)!==entry.ref)throw Error('Wrong ref: '+name);
  console.log(name+' '+entry.ref);

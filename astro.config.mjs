@@ -1,2 +1,2 @@
 import { defineConfig } from 'astro/config';
-export default defineConfig({site:'https://philosophiaatlas.github.io',output:'static',trailingSlash:'always',build:{format:'directory'},vite:{server:{fs:{allow:['.']}}}});
+export default defineConfig({site:'https://philosophia.diepnguyenhong834.workers.dev',output:'static',trailingSlash:'always',build:{format:'directory'},vite:{server:{fs:{allow:['.']}}}});

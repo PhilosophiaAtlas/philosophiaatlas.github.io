@@ -1,0 +1,10 @@
+---
+import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import RevisionHistory from '../../../.vendor/wiki-ui/src/RevisionHistory.astro';
+import {getWiki} from '../../lib/wiki.mjs';
+import {getHistory} from '../../lib/history.mjs';
+export async function getStaticPaths(){const wiki=await getWiki();return wiki.articles.map(article=>({params:{id:article.id},props:{article}}));}
+const {article}=Astro.props;
+const {revisions,limited}=getHistory(article);
+---
+<Layout title={'Lịch sử: '+article.title}><div data-pagefind-ignore><h1>Lịch sử: {article.title}</h1><p><a href={'/wiki/'+article.id+'/'}>← Trở về bài viết</a></p><RevisionHistory id={article.id} revisions={revisions.map(({sha,date})=>({sha,date}))} limited={limited}/></div></Layout>

@@ -1,14 +1,14 @@
 {
   "name": "philosophiaatlas-site",
-  "version": "0.1.0-alpha.7",
+  "version": "0.1.0-alpha.8",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "test": "node --test .vendor/wiki-core/test/compiler.test.mjs tests/library.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles",
-    "test:browser": "node --test tests/preview.browser.test.mjs tests/auth.browser.test.mjs",
+    "test": "node --test .vendor/wiki-core/test/compiler.test.mjs tests/library.test.mjs tests/history.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles",
+    "test:browser": "node --test tests/preview.browser.test.mjs tests/auth.browser.test.mjs tests/history.browser.test.mjs",
     "test:auth": "node --test tests/auth.test.mjs",
     "build:cloudflare": "node scripts/sync.mjs && npm test && npm run test:auth && npm run build"
   },
