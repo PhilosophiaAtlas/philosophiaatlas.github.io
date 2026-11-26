@@ -19,7 +19,7 @@ const history='/history/'+a.id+'/';
 <Layout title={a.title} toc={a.toc} article={true}>
 <progress id="reading-progress" class="reading-progress" max="100" value="0" aria-label="Tiến độ đọc" hidden></progress>
 <div data-pagefind-body><h1 data-pagefind-meta="title">{a.title}</h1><p class="subtitle">{a.originalTitle}</p>
-<nav data-pagefind-ignore class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a></nav>
+<nav data-pagefind-ignore class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a><a href={'/graph/?focus='+encodeURIComponent('article:'+a.id)}>Đồ thị</a></nav>
 <PersonalTools id={a.id} title={a.title} revision={a.revision}/>
 {hatnotes.length>0&&<div class="hatnote" data-pagefind-ignore>{hatnotes.map(n=><p>{n.text} <a href={'/wiki/'+n.target+'/'}>{n.title}</a>.</p>)}</div>}
 {a.kind==='disambiguation'?<div class="disambiguation-box"><p>Trang định hướng: chọn mục từ phù hợp với ngữ cảnh.</p><ul>{options.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a> <span class="subtitle">{b.originalTitle}</span></li>)}</ul></div>:<p data-pagefind-ignore class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>}
