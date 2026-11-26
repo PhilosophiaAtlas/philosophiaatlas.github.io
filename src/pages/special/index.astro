@@ -8,6 +8,7 @@ for(const d of wiki.diagnostics){if(d.code!=='W001')continue;const refs=wanted.g
 const missing=[...wanted].sort((a,b)=>b[1].size-a[1].size||a[0].localeCompare(b[0]));
 ---
 <Layout title="Trang đặc biệt"><h1>Trang đặc biệt</h1>
+<h2>Công cụ cá nhân</h2><p><a href="/library/">Thư viện cá nhân: bài đã lưu, theo dõi và lịch sử đọc</a>.</p>
 <h2>Thống kê</h2><p>{wiki.articles.length} bài viết, {Object.keys(wiki.categories).length} thể loại, {missing.length} mục từ chưa tồn tại ({wiki.diagnostics.filter(d=>d.code==='W001').length} lượt cảnh báo liên kết).</p>
 <h2>Chuyển hướng</h2><p>{Object.keys(wiki.redirects).length} địa chỉ thay thế.</p><ul>{Object.entries(wiki.redirects).map(([alias,id])=><li><a href={'/wiki/'+alias+'/'} target="_self">{alias}</a> → <a href={'/wiki/'+id+'/'}>{byId.get(id)?.title??id}</a></li>)}</ul>
 <h2>Trang định hướng</h2><ul>{wiki.articles.filter(a=>a.kind==='disambiguation').map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a></li>)}</ul>

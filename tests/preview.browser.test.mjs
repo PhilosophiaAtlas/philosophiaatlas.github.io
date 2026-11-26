@@ -88,6 +88,28 @@ test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:120
   const parent=page.locator('.category-tree details').first();
   await parent.locator('summary').tap({position:{x:6,y:10}});
   assert.equal(await parent.getAttribute('open'),null);
+  await page.goto('http://127.0.0.1:4321/wiki/consciousness/');
+  const saved=page.locator('[data-library-action="saved"]'),watched=page.locator('[data-library-action="watched"]');
+  await saved.tap();await watched.tap();
+  assert.equal(await saved.getAttribute('aria-pressed'),'true');
+  assert.equal(await watched.getAttribute('aria-pressed'),'true');
+  await page.reload();await saved.waitFor({state:'visible'});assert.equal(await saved.getAttribute('aria-pressed'),'true');
+  await page.goto('http://127.0.0.1:4321/library/');
+  await page.locator('#library-list a[href="/wiki/consciousness/"]').waitFor();
+  await page.locator('[data-tab="watched"]').tap();
+  await page.waitForFunction(()=>document.querySelector('#library-list')?.textContent.includes('Chưa có thay đổi'));
+  await page.evaluate(()=>{const k='philosophia-library-v1',s=JSON.parse(localStorage.getItem(k));s.watched[0].revision='0'.repeat(64);localStorage.setItem(k,JSON.stringify(s));window.dispatchEvent(new Event('philosophia-library-change'));});
+  await page.getByText('Có thay đổi mới',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Đánh dấu đã đọc'}).tap();
+  await page.getByText('Chưa có thay đổi',{exact:true}).waitFor();
+  await page.locator('[data-tab="history"]').tap();
+  await page.locator('#library-list a[href="/wiki/consciousness/"]').waitFor();
+  await page.locator('#library-history-enabled').uncheck();
+  await page.evaluate(()=>{const k='philosophia-library-v1',s=JSON.parse(localStorage.getItem(k));s.history=[];localStorage.setItem(k,JSON.stringify(s));});
+  await page.goto('http://127.0.0.1:4321/wiki/consciousness/');
+  await page.goto('http://127.0.0.1:4321/library/');
+  await page.locator('[data-tab="history"]').tap();
+  await page.getByText('Chưa có bài viết trong danh sách này.').waitFor();
   // Static reading remains available with JavaScript disabled.
   const noJS=await browser.newContext({javaScriptEnabled:false});
   const staticPage=await noJS.newPage();
