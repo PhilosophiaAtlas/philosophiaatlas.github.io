@@ -23,12 +23,17 @@ const git=(args,cwd,authenticated=false)=>{
 if(token){
  const entry=lock.components['knowledge-base'];
  if(entry?.repository!=='PhilosophiaAtlas/knowledge-base'||!(/^[a-f0-9]{40}$/.test(entry.ref)))throw Error('Invalid knowledge-base lock');
- const response=await fetch('https://api.github.com/repos/PhilosophiaAtlas/knowledge-base/git/commits/'+entry.ref,{headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','User-Agent':'Philosophia-build'},redirect:'error'});
+ const options={headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','User-Agent':'Philosophia-build'},redirect:'error'};
+ const metadata=await fetch('https://api.github.com/repos/PhilosophiaAtlas/knowledge-base',options);
+ if(!metadata.ok)throw Error('Knowledge-base metadata check failed (HTTP '+metadata.status+')');
+ if((await metadata.json()).private!==true)throw Error('Knowledge-base must remain private');
+ console.log('Knowledge-base visibility: private');
+ const response=await fetch('https://api.github.com/repos/PhilosophiaAtlas/knowledge-base/git/commits/'+entry.ref,options);
  if(!response.ok)throw Error('Knowledge-base token verification failed (HTTP '+response.status+')');
  const commit=await response.json();
  if(commit.sha!==entry.ref)throw Error('Knowledge-base token returned unexpected commit');
  console.log('Knowledge-base token: authenticated API check passed');
-}else console.log('Knowledge-base token: not configured; public access only');
+}else throw Error('WIKI_CONTENT_TOKEN is required for the private knowledge-base');
 await mkdir('.vendor',{recursive:true});
 for(const [name,entry] of Object.entries(lock.components)){
  if(!/^[a-z0-9-]+$/.test(name)||entry.repository!=='PhilosophiaAtlas/'+name||!(/^[a-f0-9]{40}$/.test(entry.ref)))throw Error('Invalid component lock: '+name);
@@ -39,7 +44,7 @@ for(const [name,entry] of Object.entries(lock.components)){
  if(git(['config','--local','--get','remote.origin.url'],dir)!==url)throw Error('Unexpected origin: '+name);
  if(git(['status','--porcelain'],dir))throw Error('Dirty component: '+name);
  git(['fetch','--depth=1','origin',entry.ref],dir,name==='knowledge-base'&&!!token);
- git(['checkout','--detach',entry.ref],dir);
+ git(['checkout','--quiet','--detach',entry.ref],dir);
  if(git(['rev-parse','HEAD'],dir)!==entry.ref)throw Error('Wrong ref: '+name);
  console.log(name+' '+entry.ref);
 }

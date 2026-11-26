@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -21,10 +23,43 @@ jobs:
         env:
           WIKI_CONTENT_TOKEN: ${{ secrets.WIKI_CONTENT_TOKEN }}
       - run: npm install --no-audit --no-fund
-      - run: npm test
+      # The parent repository is public. Never publish private article diagnostics.
+      - name: Validate content (private output)
+        run: |
+          if npm test >"$RUNNER_TEMP/wiki-validation.log" 2>&1; then
+            echo "Content validation passed"
+          else
+            echo "::error::Content validation failed; reproduce in a trusted private environment."
+            exit 1
+          fi
       - run: npm run test:auth
-      - run: npm run build
+      - name: Build wiki (private output)
+        run: |
+          if npm run build >"$RUNNER_TEMP/wiki-build.log" 2>&1; then
+            echo "Wiki build passed"
+          else
+            echo "::error::Wiki build failed; reproduce in a trusted private environment."
+            exit 1
+          fi
       - run: test -f dist/index.html && test -f dist/wiki/philosophy/index.html && test -f dist/pagefind/pagefind.js && test -f dist/preview/philosophy.json && test -f dist/special/random/index.html && test -f dist/search-index.json && test -f dist/wiki/y-thuc/index.html && test -f dist/wiki/consciousness-disambiguation/index.html
       - run: node -e 'const x=JSON.parse(require("fs").readFileSync("dist/preview/philosophy.json","utf8")); if(!x.title||!x.summary) process.exit(1)'
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      - name: Browser tests (private output)
+        run: |
+          if npm run test:browser >"$RUNNER_TEMP/wiki-browser.log" 2>&1; then
+            echo "Browser tests passed"
+          else
+            echo "::error::Browser tests failed; reproduce in a trusted private environment."
+            exit 1
+          fi
+      - name: Check retired public site
+        run: |
+          status=$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' https://philosophiaatlas.github.io/)
+          echo "Legacy GitHub Pages HTTP status: $status"
+          if [ "$status" != 404 ] && [ "$status" != 410 ]; then
+            echo "::error::Legacy Pages site is not confirmed unpublished."
+            exit 1
+          fi
+      - name: Remove private build diagnostics
+        if: always()
+        run: rm -f "$RUNNER_TEMP/wiki-validation.log" "$RUNNER_TEMP/wiki-build.log" "$RUNNER_TEMP/wiki-browser.log"
