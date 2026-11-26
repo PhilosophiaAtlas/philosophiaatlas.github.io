@@ -8,7 +8,7 @@
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "test": "node --test .vendor/wiki-core/test/compiler.test.mjs tests/library.test.mjs tests/history.test.mjs tests/research.test.mjs tests/graph.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles",
-    "test:browser": "node --test tests/preview.browser.test.mjs tests/auth.browser.test.mjs tests/history.browser.test.mjs tests/research.browser.test.mjs tests/graph.browser.test.mjs",
+    "test:browser": "node --test --test-concurrency=1 tests/preview.browser.test.mjs tests/auth.browser.test.mjs tests/history.browser.test.mjs tests/research.browser.test.mjs tests/graph.browser.test.mjs",
     "test:auth": "node --test tests/auth.test.mjs",
     "build:cloudflare": "node scripts/sync.mjs && npm test && npm run test:auth && npm run build"
   },
