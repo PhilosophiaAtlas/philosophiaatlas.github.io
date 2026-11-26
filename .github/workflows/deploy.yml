@@ -20,8 +20,11 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/sync.mjs
+        env:
+          WIKI_CONTENT_TOKEN: ${{ secrets.WIKI_CONTENT_TOKEN }}
       - run: npm install --no-audit --no-fund
       - run: npm test
+      - run: npm run test:auth
       - run: npm run build
       - run: test -f dist/index.html && test -f dist/wiki/philosophy/index.html && test -f dist/pagefind/pagefind.js && test -f dist/preview/philosophy.json && test -f dist/special/random/index.html && test -f dist/search-index.json && test -f dist/wiki/y-thuc/index.html && test -f dist/wiki/consciousness-disambiguation/index.html
       - run: node -e 'const x=JSON.parse(require("fs").readFileSync("dist/preview/philosophy.json","utf8")); if(!x.title||!x.summary) process.exit(1)'
