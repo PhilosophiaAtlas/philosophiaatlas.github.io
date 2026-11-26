@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "release": "0.1.0-alpha.3",
+  "release": "0.1.0-alpha.4",
   "components": {
     "wiki-core": {
       "repository": "PhilosophiaAtlas/wiki-core",
@@ -8,7 +8,7 @@
     },
     "wiki-ui": {
       "repository": "PhilosophiaAtlas/wiki-ui",
-      "ref": "d9c028078b2b1c08541d340238f8abcff5eb1d55"
+      "ref": "7547d947acabd4a3b43ca5262315f044fb18e192"
     },
     "knowledge-base": {
       "repository": "PhilosophiaAtlas/knowledge-base",

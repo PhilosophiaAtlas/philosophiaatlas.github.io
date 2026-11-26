@@ -34,5 +34,33 @@ test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:600
   await link.tap();
   await dialog.waitFor({state:'visible'});
   assert.equal(new URL(page.url()).pathname,'/');
+  await page.locator('#preview-dismiss').tap();
+  await page.goto('http://127.0.0.1:4321/wiki/consciousness/');
+  const section=page.locator('article .section-toggle').first();
+  const panel=page.locator('#wiki-section-content-1');
+  await section.tap();
+  await panel.waitFor({state:'hidden'});
+  assert.equal(await section.getAttribute('aria-expanded'),'false');
+  await section.tap();await panel.waitFor({state:'visible'});
+  await page.locator('#sections-toggle').tap();await panel.waitFor({state:'hidden'});
+  await page.locator('#sections-toggle').tap();await panel.waitFor({state:'visible'});
+  await page.locator('#reading-focus').tap();
+  await page.locator('.site-header').waitFor({state:'hidden'});
+  assert.equal(await page.locator('#reading-focus').getAttribute('aria-pressed'),'true');
+  await page.reload();
+  await page.locator('.site-header').waitFor({state:'hidden'});
+  await page.locator('#reading-focus').tap();
+  await page.locator('.site-header').waitFor({state:'visible'});
+  await page.locator('#wiki-toc summary').tap();
+  await page.locator('#wiki-toc a[href="#section-1"]').tap();
+  assert.equal(new URL(page.url()).hash,'#section-1');
+  await page.waitForFunction(()=>document.querySelector('#wiki-toc a[aria-current="location"]')!==null);
+  // Static reading remains available with JavaScript disabled.
+  const noJS=await browser.newContext({javaScriptEnabled:false});
+  const staticPage=await noJS.newPage();
+  await staticPage.goto('http://127.0.0.1:4321/wiki/consciousness/');
+  assert.match(await staticPage.locator('article').innerText(),/nhóm hiện tượng/);
+  assert.equal(await staticPage.locator('article .section-toggle').count(),0);
+  await noJS.close();
  }finally{await browser?.close();server.kill();}
 });
