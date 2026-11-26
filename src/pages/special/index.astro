@@ -2,9 +2,13 @@
 import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
 import {getWiki} from '../../lib/wiki.mjs';
 const wiki=await getWiki();
+const byId=new Map(wiki.articles.map(a=>[a.id,a]));
+const wanted=new Map();
+for(const d of wiki.diagnostics){if(d.code!=='W001')continue;const refs=wanted.get(d.target)??new Set();refs.add(d.article);wanted.set(d.target,refs);}
+const missing=[...wanted].sort((a,b)=>b[1].size-a[1].size||a[0].localeCompare(b[0]));
 ---
 <Layout title="Trang đặc biệt"><h1>Trang đặc biệt</h1>
-<h2>Thống kê</h2><p>{wiki.articles.length} bài viết, {Object.keys(wiki.categories).length} thể loại, {wiki.diagnostics.length} cảnh báo liên kết.</p>
-<h2>Bài chưa tồn tại</h2><ul>{wiki.diagnostics.map(d=><li>{d.target} · <a href={'/wiki/'+d.article+'/'}>{d.article}</a></li>)}</ul>
+<h2>Thống kê</h2><p>{wiki.articles.length} bài viết, {Object.keys(wiki.categories).length} thể loại, {missing.length} mục từ chưa tồn tại ({wiki.diagnostics.length} lượt cảnh báo liên kết).</p>
+<h2>Bài chưa tồn tại</h2><ul>{missing.map(([target,refs])=><li><span class="missing-link">{target}</span> ({refs.size} bài nhắc đến)<ul>{[...refs].map(id=><li><a href={'/wiki/'+id+'/'}>{byId.get(id)?.title??id}</a></li>)}</ul></li>)}</ul>
 <h2>Bài không có liên kết đến</h2><ul>{wiki.articles.filter(a=>!wiki.backlinks[a.id]?.length).map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a></li>)}</ul>
 </Layout>

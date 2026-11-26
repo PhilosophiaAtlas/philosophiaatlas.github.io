@@ -1,0 +1,7 @@
+---
+import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import {getWiki} from '../../lib/wiki.mjs';
+import {categoryHref} from '../../lib/categories.mjs';
+const wiki=await getWiki();
+---
+<Layout title="Thể loại"><h1>Thể loại</h1><ul class="category-list">{Object.entries(wiki.categories).sort(([a],[b])=>a.localeCompare(b,'vi')).map(([c,ids])=><li><a href={categoryHref(c)}>{c}</a> ({ids.length})</li>)}</ul></Layout>

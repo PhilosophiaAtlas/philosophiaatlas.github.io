@@ -1,14 +1,19 @@
 ---
 import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
 import {getWiki} from '../../lib/wiki.mjs';
+import {categoryHref} from '../../lib/categories.mjs';
+import lock from '../../../philosophia.lock.json';
 export async function getStaticPaths(){const wiki=await getWiki();return wiki.articles.map(a=>({params:{id:a.id},props:{article:a,related:(wiki.backlinks[a.id]??[]).map(id=>wiki.articles.find(x=>x.id===id)).filter(Boolean)}}));}
 const {article:a,related}=Astro.props;
+const source='https://github.com/PhilosophiaAtlas/knowledge-base/blob/'+lock.components['knowledge-base'].ref+'/articles/'+a.path;
+const history='https://github.com/PhilosophiaAtlas/knowledge-base/commits/main/articles/'+a.path;
 ---
 <Layout title={a.title} toc={a.toc}>
 <h1>{a.title}</h1><p class="subtitle">{a.originalTitle}</p>
-<p class="meta">Bài nháp · <a href={'https://github.com/PhilosophiaAtlas/knowledge-base/blob/main/articles/'+a.path}>Xem mã nguồn bài</a></p>
+<nav class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a></nav>
+<p class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>
 <article set:html={a.html}/>
-<h2>Liên kết đến bài này</h2>
+<h2 id="backlinks">Liên kết đến bài này</h2>
 {related.length?<ul>{related.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a></li>)}</ul>:<p>Chưa có liên kết đến.</p>}
-<p class="meta">Thể loại: {a.categories.join(' · ')}</p>
+<p class="meta">Thể loại: {a.categories.map((c,i)=><>{i>0?' · ':''}<a href={categoryHref(c)}>{c}</a></>)}</p>
 </Layout>

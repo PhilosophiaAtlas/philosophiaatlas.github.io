@@ -2,5 +2,6 @@
 import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
 import {getWiki} from '../../lib/wiki.mjs';
 const {articles}=await getWiki();
+const sorted=[...articles].sort((a,b)=>a.title.localeCompare(b.title,'vi'));
 ---
-<Layout title="Tất cả bài viết"><h1>Tất cả bài viết</h1><ul>{articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a> <span class="subtitle">{a.originalTitle}</span></li>)}</ul></Layout>
+<Layout title="Tất cả bài viết"><h1>Tất cả bài viết</h1><p>{sorted.length} mục từ.</p><ul class="article-list">{sorted.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a> <span class="subtitle">{a.originalTitle}</span></li>)}</ul></Layout>

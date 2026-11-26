@@ -1,15 +1,16 @@
 ---
 import Layout from '../../.vendor/wiki-ui/src/WikiLayout.astro';
 import {getWiki} from '../lib/wiki.mjs';
+import {categoryHref} from '../lib/categories.mjs';
 const wiki=await getWiki();
 ---
 <Layout title="Trang chính" description="Bách khoa thư triết học cá nhân">
 <h1>Philosophia</h1>
 <p>Bách khoa thư triết học tiếng Việt, hướng đến việc tự đọc và nghiên cứu.</p>
-<p class="meta">Bản thử nghiệm First Light · {wiki.articles.length} bài nháp · Nội dung chưa được thẩm định học thuật.</p>
+<p class="meta">Bản thử nghiệm Wiki Foundation · {wiki.articles.length} bài nháp · Nội dung chưa được thẩm định học thuật.</p>
 <h2>Bắt đầu đọc</h2>
-<ul>{wiki.articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a> <span class="subtitle">({a.originalTitle})</span></li>)}</ul>
+<ul class="article-list">{wiki.articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a> <span class="subtitle">{a.originalTitle}</span></li>)}</ul>
 <h2>Thể loại</h2>
-<ul>{Object.entries(wiki.categories).map(([c,ids])=><li>{c} ({ids.length})</li>)}</ul>
+<ul class="category-list">{Object.entries(wiki.categories).map(([c,ids])=><li><a href={categoryHref(c)}>{c}</a> ({ids.length})</li>)}</ul>
 <p><a href="/special/">Xem tình trạng kho tri thức</a></p>
 </Layout>
