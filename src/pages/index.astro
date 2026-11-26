@@ -8,7 +8,7 @@ const wiki=await getWiki();
 <h1>Philosophia</h1>
 <p>Bách khoa thư triết học tiếng Việt, hướng đến việc tự đọc và nghiên cứu.</p>
 <p class="meta">Bản thử nghiệm Wiki Foundation · {wiki.articles.length} bài nháp · Nội dung chưa được thẩm định học thuật.</p>
-<h2>Bắt đầu đọc</h2>
+<p><a href="/special/random/">Khám phá bài viết ngẫu nhiên →</a></p><h2>Bắt đầu đọc</h2>
 <ul class="article-list">{wiki.articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a> <span class="subtitle">{a.originalTitle}</span></li>)}</ul>
 <h2>Thể loại</h2>
 <ul class="category-list">{Object.entries(wiki.categories).map(([c,ids])=><li><a href={categoryHref(c)}>{c}</a> ({ids.length})</li>)}</ul>

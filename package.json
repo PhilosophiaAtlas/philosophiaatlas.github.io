@@ -1,11 +1,11 @@
 {
   "name": "philosophiaatlas-site",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "test": "node --test .vendor/wiki-core/test/compiler.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles"
   },
@@ -16,5 +16,8 @@
     "astro": "5.13.2",
     "markdown-it": "14.1.0",
     "yaml": "2.8.1"
+  },
+  "devDependencies": {
+    "pagefind": "1.3.0"
   }
 }

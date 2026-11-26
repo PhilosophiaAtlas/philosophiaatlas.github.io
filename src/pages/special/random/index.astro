@@ -1,0 +1,7 @@
+---
+import Layout from '../../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import {getWiki} from '../../../lib/wiki.mjs';
+const {articles}=await getWiki();
+---
+<Layout title="Bài viết ngẫu nhiên"><h1>Bài viết ngẫu nhiên</h1><p>Chọn một mục từ để khám phá.</p><button id="randomize" type="button">Đến bài ngẫu nhiên</button><ul id="random-list" class="article-list">{articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a></li>)}</ul>
+<script is:inline>const links=[...document.querySelectorAll('#random-list a')];const go=()=>{if(links.length)location.assign(links[Math.floor(Math.random()*links.length)].href);};document.getElementById('randomize').addEventListener('click',go);go();</script></Layout>

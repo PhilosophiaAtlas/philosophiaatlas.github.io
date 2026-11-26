@@ -6,16 +6,22 @@ const {articles}=await getWiki();
 <Layout title="Tìm kiếm">
 <h1>Tìm kiếm</h1>
 <form class="search-form" id="search-form" action="/search/"><label class="sr-only" for="query">Từ khóa</label><input type="search" id="query" name="q" placeholder="Tiếng Việt hoặc tiếng Anh"/><button type="submit">Tìm</button></form>
-<p class="subtitle">Tìm theo tiêu đề, tên gốc và tên thay thế. Chưa hỗ trợ tìm toàn văn.</p>
-<p id="result-count" role="status">{articles.length} mục từ</p>
+<p class="subtitle">Tìm theo tên bài, tên gốc, tên thay thế hoặc nội dung bài viết.</p>
+<fieldset class="search-mode"><legend>Phạm vi</legend><label><input name="mode" type="radio" value="title" checked/> Tiêu đề</label> <label><input name="mode" type="radio" value="full"/> Toàn văn</label></fieldset><p id="result-count" role="status">{articles.length} mục từ</p>
 <noscript><p>Bật JavaScript để lọc kết quả, hoặc duyệt danh sách dưới đây.</p></noscript>
 <ul class="article-list search-results" id="results">{articles.map(a=><li data-search={[a.id,a.title,a.originalTitle??'',...a.aliases].join(' ')}><a href={'/wiki/'+a.id+'/'}>{a.title}</a><span class="subtitle">{a.originalTitle}</span></li>)}</ul>
-<script is:inline>
-const q=document.getElementById('query'),form=document.getElementById('search-form'),items=[...document.querySelectorAll('#results li')],count=document.getElementById('result-count');
+<ol id="full-results" class="search-results" hidden></ol><script is:inline>
+const q=document.getElementById('query'),form=document.getElementById('search-form'),list=document.getElementById('results'),full=document.getElementById('full-results'),items=[...list.querySelectorAll('li')],count=document.getElementById('result-count');
 const norm=s=>s.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/đ/g,'d');
-q.value=new URLSearchParams(location.search).get('q')??'';
-const index=items.map(li=>[li,norm(li.dataset.search)]);
-function filter(){const terms=norm(q.value).trim().split(/\s+/).filter(Boolean);let n=0;for(const [li,value] of index){li.hidden=!terms.every(t=>value.includes(t));if(!li.hidden)n++;}count.textContent=n+' kết quả';}
-form.addEventListener('submit',e=>{e.preventDefault();const url=new URL(location.href);if(q.value.trim())url.searchParams.set('q',q.value.trim());else url.searchParams.delete('q');history.replaceState(null,'',url);filter();});q.addEventListener('input',filter);filter();
+const params=new URLSearchParams(location.search);q.value=params.get('q')??'';
+const modes=[...document.querySelectorAll('input[name="mode"]')];if(params.get('mode')==='full')modes.find(m=>m.value==='full').checked=true;
+const index=items.map(li=>[li,norm(li.dataset.search)]);let generation=0,timer,api;
+async function filter(){const gen=++generation,term=q.value.trim(),mode=modes.find(m=>m.checked)?.value;const useFull=mode==='full'&&term.length>0;list.hidden=useFull;full.hidden=!useFull;
+if(!useFull){const terms=norm(term).split(/\s+/).filter(Boolean);let n=0;for(const [li,value] of index){li.hidden=!terms.every(t=>value.includes(t));if(!li.hidden)n++;}count.textContent=n+' kết quả';return;}
+full.replaceChildren();count.textContent='Đang tìm kiếm…';
+try{api??=import('/pagefind/pagefind.js');const pf=await api;const r=await pf.search(term);const hits=await Promise.all(r.results.slice(0,50).map(x=>x.data()));if(gen!==generation)return;for(const hit of hits){const u=new URL(hit.url,location.origin);if(u.origin!==location.origin||!u.pathname.startsWith('/wiki/'))continue;const li=document.createElement('li'),a=document.createElement('a'),p=document.createElement('p');a.href=u.href;a.textContent=hit.meta?.title||u.pathname;p.textContent=hit.plain_excerpt??String(hit.excerpt??'').replace(/<[^>]*>/g,'');li.append(a,p);full.append(li);}count.textContent=r.results.length+' kết quả'+(r.results.length>50?' (hiển thị 50 đầu tiên)':'');}
+catch{if(gen!==generation)return;api=undefined;count.textContent='Không tải được chỉ mục toàn văn. Hãy thử tìm theo tiêu đề.';}}
+function updateUrl(){const url=new URL(location.href);if(q.value.trim())url.searchParams.set('q',q.value.trim());else url.searchParams.delete('q');url.searchParams.set('mode',modes.find(m=>m.checked)?.value??'title');history.replaceState(null,'',url);}
+form.addEventListener('submit',e=>{e.preventDefault();clearTimeout(timer);updateUrl();filter();});q.addEventListener('input',()=>{clearTimeout(timer);generation++;timer=setTimeout(()=>{updateUrl();filter()},180)});for(const m of modes)m.addEventListener('change',()=>{clearTimeout(timer);updateUrl();filter()});filter();
 </script>
 </Layout>

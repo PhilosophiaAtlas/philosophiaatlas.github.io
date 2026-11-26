@@ -9,10 +9,12 @@ const source='https://github.com/PhilosophiaAtlas/knowledge-base/blob/'+lock.com
 const history='https://github.com/PhilosophiaAtlas/knowledge-base/commits/main/articles/'+a.path;
 ---
 <Layout title={a.title} toc={a.toc}>
-<h1>{a.title}</h1><p class="subtitle">{a.originalTitle}</p>
-<nav class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a></nav>
-<p class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>
-<article set:html={a.html}/>
+<div data-pagefind-body><h1 data-pagefind-meta="title">{a.title}</h1><p class="subtitle">{a.originalTitle}</p>
+<nav data-pagefind-ignore class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a></nav>
+<p data-pagefind-ignore class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>
+<article set:html={a.html}/></div>
+<div class="article-tools"><button id="print-article" type="button">In / Lưu PDF</button><button id="copy-article" type="button" data-url={Astro.url.pathname}>Sao chép liên kết</button><span id="copy-status" role="status"></span></div>
+<script is:inline>document.getElementById("print-article").addEventListener("click",()=>window.print());document.getElementById("copy-article").addEventListener("click",async()=>{const s=document.getElementById("copy-status");try{await navigator.clipboard.writeText(location.origin+document.getElementById("copy-article").dataset.url);s.textContent="Đã sao chép";}catch{s.textContent="Không sao chép được. Hãy dùng thanh địa chỉ.";}});</script>
 <h2 id="backlinks">Liên kết đến bài này</h2>
 {related.length?<ul>{related.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a></li>)}</ul>:<p>Chưa có liên kết đến.</p>}
 <p class="meta">Thể loại: {a.categories.map((c,i)=><>{i>0?' · ':''}<a href={categoryHref(c)}>{c}</a></>)}</p>
