@@ -4,7 +4,7 @@ import {chromium,devices} from 'playwright';
 import {spawn} from 'node:child_process';
 import {setTimeout as delay} from 'node:timers/promises';
 
-test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:60000}, async()=>{
+test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:90000}, async()=>{
  const server=spawn(process.execPath,['node_modules/astro/astro.js','preview','--host','127.0.0.1','--port','4321'],{stdio:'ignore'});
  let browser;
  try{
@@ -55,6 +55,25 @@ test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:600
   await page.locator('#wiki-toc a[href="#section-1"]').tap();
   assert.equal(new URL(page.url()).hash,'#section-1');
   await page.waitForFunction(()=>document.querySelector('#wiki-toc a[aria-current="location"]')!==null);
+  await page.goto('http://127.0.0.1:4321/wiki/consciousness/');
+  assert.match(await page.locator('.infobox').innerText(),/Consciousness/);
+  await page.locator('.citation a').first().tap();
+  await page.locator('#reference-preview').waitFor({state:'visible'});
+  assert.match(await page.locator('#reference-content').innerText(),/Consciousness/);
+  await page.locator('#reference-dismiss').tap();
+  await page.locator('#reference-preview').waitFor({state:'hidden'});
+  await page.locator('.citation a').first().tap();
+  await page.locator('#reference-jump').tap();
+  await page.waitForFunction(()=>location.hash==='#ref-1');
+  await page.goto('http://127.0.0.1:4321/');
+  const query=page.locator('#header-query');
+  await query.fill('y thuc');
+  await page.locator('#suggestion-list a[href="/wiki/consciousness/"]').waitFor({state:'visible'});
+  await query.fill('consciousnes');
+  await page.locator('#suggestion-list a[href="/wiki/consciousness/"]').waitFor({state:'visible'});
+  await page.waitForFunction(()=>document.querySelector('#suggestion-list a')?.textContent.includes('Ý thức'));
+  await query.press('ArrowDown');
+  await Promise.all([page.waitForURL('**/wiki/consciousness/'),query.press('Enter')]);
   // Static reading remains available with JavaScript disabled.
   const noJS=await browser.newContext({javaScriptEnabled:false});
   const staticPage=await noJS.newPage();

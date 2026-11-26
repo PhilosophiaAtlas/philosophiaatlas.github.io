@@ -14,6 +14,7 @@ const history='https://github.com/PhilosophiaAtlas/knowledge-base/commits/main/a
 <nav data-pagefind-ignore class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a></nav>
 <p data-pagefind-ignore class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>
 <div class="reading-toolbar" data-pagefind-ignore><button id="sections-toggle" type="button" hidden>Thu gọn tất cả</button><button id="reading-focus" type="button" aria-pressed="false" hidden>Đọc tập trung</button></div>
+{a.infobox?.length>0&&<table class="infobox" aria-label="Thông tin tóm tắt"><caption>{a.title}</caption><tbody>{a.infobox.map(row=><tr><th scope="row">{row.label}</th><td>{row.value}</td></tr>)}</tbody></table>}
 <article set:html={a.html}/></div>
 <div class="article-tools"><button id="print-article" type="button">In / Lưu PDF</button><button id="copy-article" type="button" data-url={Astro.url.pathname}>Sao chép liên kết</button><span id="copy-status" role="status"></span></div>
 <script is:inline>document.getElementById("print-article").addEventListener("click",()=>window.print());document.getElementById("copy-article").addEventListener("click",async()=>{const s=document.getElementById("copy-status");try{await navigator.clipboard.writeText(location.origin+document.getElementById("copy-article").dataset.url);s.textContent="Đã sao chép";}catch{s.textContent="Không sao chép được. Hãy dùng thanh địa chỉ.";}});</script>
