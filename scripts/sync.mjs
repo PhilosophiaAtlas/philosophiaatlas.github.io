@@ -18,7 +18,7 @@ for(const [name,entry] of Object.entries(lock.components)){
  const exists=await stat(dir).then(()=>true,e=>{if(e.code==='ENOENT')return false;throw e});
  const url='https://github.com/'+entry.repository+'.git';
  if(!exists){await mkdir(dir);git(['init'],dir);git(['remote','add','origin',url],dir);}
- if(git(['remote','get-url','origin'],dir)!==url)throw Error('Unexpected origin: '+name);
+ if(git(['config','--local','--get','remote.origin.url'],dir)!==url)throw Error('Unexpected origin: '+name);
  if(git(['status','--porcelain'],dir))throw Error('Dirty component: '+name);
  git(['fetch','--depth=1','origin',entry.ref],dir);
  git(['checkout','--detach',entry.ref],dir);
