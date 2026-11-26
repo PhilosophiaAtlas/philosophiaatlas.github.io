@@ -8,7 +8,9 @@
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "test": "node --test .vendor/wiki-core/test/compiler.test.mjs && node .vendor/research-toolkit/scripts/audit.mjs .vendor/knowledge-base/articles",
-    "test:browser": "node --test tests/preview.browser.test.mjs"
+    "test:browser": "node --test tests/preview.browser.test.mjs",
+    "test:auth": "node --test tests/auth.test.mjs",
+    "build:cloudflare": "node scripts/sync.mjs && npm test && npm run test:auth && npm run build"
   },
   "engines": {
     "node": ">=22"
