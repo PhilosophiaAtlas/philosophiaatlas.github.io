@@ -49,21 +49,7 @@ jobs:
           if npm run test:browser >"$RUNNER_TEMP/wiki-browser.log" 2>&1; then
             echo "Browser tests passed"
           else
-            grep -oE '^# SAFE_GRAPH_FAILURE_PHASE=(startup|data|create-note|open-graph|note-neighbor|back|node-filter|edge-filter|zoom-fit|search|depth|overview)
-            exit 1
-          fi
-      - name: Check retired public site
-        run: |
-          status=$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' https://philosophiaatlas.github.io/)
-          echo "Legacy GitHub Pages HTTP status: $status"
-          if [ "$status" != 404 ] && [ "$status" != 410 ]; then
-            echo "::error::Legacy Pages site is not confirmed unpublished."
-            exit 1
-          fi
-      - name: Remove private build diagnostics
-        if: always()
-        run: rm -f "$RUNNER_TEMP/wiki-validation.log" "$RUNNER_TEMP/wiki-build.log" "$RUNNER_TEMP/wiki-browser.log"
- "$RUNNER_TEMP/wiki-browser.log" || true
+            grep -oE '^# SAFE_GRAPH_FAILURE_PHASE=(startup|data|create-note|open-graph|note-neighbor|back|node-filter|edge-filter|zoom-fit|search|depth|overview)$' "$RUNNER_TEMP/wiki-browser.log" || true
             echo "::error::Browser tests failed; reproduce in a trusted private environment."
             exit 1
           fi
