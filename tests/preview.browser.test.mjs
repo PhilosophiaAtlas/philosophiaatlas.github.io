@@ -4,7 +4,7 @@ import {chromium,devices} from 'playwright';
 import {spawn} from 'node:child_process';
 import {setTimeout as delay} from 'node:timers/promises';
 
-test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:90000}, async()=>{
+test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:120000}, async()=>{
  const server=spawn(process.execPath,['node_modules/astro/astro.js','preview','--host','127.0.0.1','--port','4321'],{stdio:'ignore'});
  let browser;
  try{
@@ -74,6 +74,20 @@ test('mobile preview: repeated taps, dismiss, navigate and return', {timeout:900
   await page.waitForFunction(()=>document.querySelector('#suggestion-list a')?.textContent.includes('Ý thức'));
   await query.press('ArrowDown');
   await Promise.all([page.waitForURL('**/wiki/consciousness/'),query.press('Enter')]);
+  await page.goto('http://127.0.0.1:4321/wiki/y-thuc/');
+  await page.waitForURL('**/wiki/consciousness/');
+  assert.match(await page.locator('.hatnote').innerText(),/định hướng/);
+  assert.match(await page.locator('.navbox').innerText(),/Triết học tâm trí/);
+  await page.locator('.navbox summary').tap();assert.equal(await page.locator('.navbox').getAttribute('open'),null);
+  await page.goto('http://127.0.0.1:4321/wiki/hard-problem/');
+  await page.waitForURL('**/wiki/hard-problem-of-consciousness/');
+  await page.goto('http://127.0.0.1:4321/wiki/consciousness-disambiguation/');
+  assert.equal(await page.locator('.disambiguation-box li').count(),2);
+  await page.goto('http://127.0.0.1:4321/category/');
+  assert.match(await page.locator('.category-tree').innerText(),/Tâm trí và ý thức/);
+  const parent=page.locator('.category-tree details').first();
+  await parent.locator('summary').tap({position:{x:6,y:10}});
+  assert.equal(await parent.getAttribute('open'),null);
   // Static reading remains available with JavaScript disabled.
   const noJS=await browser.newContext({javaScriptEnabled:false});
   const staticPage=await noJS.newPage();

@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "release": "0.1.0-alpha.5",
+  "release": "0.1.0-alpha.6",
   "components": {
     "wiki-core": {
       "repository": "PhilosophiaAtlas/wiki-core",
-      "ref": "df7b74c16fe8a09321f12cd9b9f356ea41a44004"
+      "ref": "e918892788e5345cc430c79cbe4ab36ec3a1c8da"
     },
     "wiki-ui": {
       "repository": "PhilosophiaAtlas/wiki-ui",
-      "ref": "21008629a1ee1efcb81248271a89b122c34811f2"
+      "ref": "0adfc0631f075250c3392542aac8fa3127dfd050"
     },
     "knowledge-base": {
       "repository": "PhilosophiaAtlas/knowledge-base",
-      "ref": "123d825f3a3e1ddf5536c7a04355726aebc11f5d"
+      "ref": "1392b5b3f1c5c083764d9fd66a75115a17c089e9"
     },
     "research-toolkit": {
       "repository": "PhilosophiaAtlas/research-toolkit",

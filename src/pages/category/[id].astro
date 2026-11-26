@@ -1,8 +1,11 @@
 ---
 import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import CategoryTree from '../../../.vendor/wiki-ui/src/CategoryTree.astro';
 import {getWiki} from '../../lib/wiki.mjs';
-import {categoryId} from '../../lib/categories.mjs';
-export async function getStaticPaths(){const wiki=await getWiki();const byId=new Map(wiki.articles.map(a=>[a.id,a]));return Object.entries(wiki.categories).map(([name,ids])=>({params:{id:categoryId(name)},props:{name,articles:ids.map(id=>byId.get(id)).filter(Boolean)}}));}
-const {name,articles}=Astro.props;
+import {categoryId,categoryHref} from '../../lib/categories.mjs';
+export async function getStaticPaths(){const wiki=await getWiki();const byId=new Map(wiki.articles.map(a=>[a.id,a]));const counts=Object.fromEntries(Object.entries(wiki.categories).map(([c,ids])=>[c,ids.length]));return Object.entries(wiki.categories).map(([name,ids])=>({params:{id:categoryId(name)},props:{name,articles:ids.map(id=>byId.get(id)).filter(Boolean),parents:wiki.categoryParents[name]??[],children:wiki.categoryChildren[name]??[],childrenByName:wiki.categoryChildren,counts}}));}
+const {name,articles,parents,children,childrenByName,counts}=Astro.props;
 ---
-<Layout title={'Thể loại: '+name}><p><a href="/category/">Tất cả thể loại</a></p><h1>Thể loại: {name}</h1><p>{articles.length} bài viết.</p><ul class="article-list">{articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a><span class="subtitle">{a.originalTitle}</span></li>)}</ul></Layout>
+<Layout title={'Thể loại: '+name}><p class="category-breadcrumb"><a href="/category/">Tất cả thể loại</a>{parents.map(p=><> / <a href={categoryHref(p)}>{p}</a></>)}</p><h1>Thể loại: {name}</h1>
+{children.length>0&&<><h2>Thể loại con</h2><ul class="category-tree">{children.map(name=><CategoryTree name={name} childrenByName={childrenByName} counts={counts} href={categoryHref}/>)}</ul></>}
+<h2>Bài viết</h2><p>{articles.length} bài viết trực tiếp.</p><ul class="article-list">{articles.map(a=><li><a href={'/wiki/'+a.id+'/'}>{a.title}</a><span class="subtitle">{a.originalTitle}</span></li>)}</ul></Layout>

@@ -3,8 +3,13 @@ import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
 import {getWiki} from '../../lib/wiki.mjs';
 import {categoryHref} from '../../lib/categories.mjs';
 import lock from '../../../philosophia.lock.json';
-export async function getStaticPaths(){const wiki=await getWiki();return wiki.articles.map(a=>({params:{id:a.id},props:{article:a,related:(wiki.backlinks[a.id]??[]).map(id=>wiki.articles.find(x=>x.id===id)).filter(Boolean)}}));}
-const {article:a,related}=Astro.props;
+export async function getStaticPaths(){
+ const wiki=await getWiki(),byId=new Map(wiki.articles.map(a=>[a.id,a]));
+ const pages=wiki.articles.map(a=>({params:{id:a.id},props:{article:a,related:(wiki.backlinks[a.id]??[]).map(id=>byId.get(id)).filter(Boolean),hatnotes:(a.hatnotes??[]).map(n=>({...n,title:byId.get(n.target).title})),options:(a.options??[]).map(id=>byId.get(id)),boxes:(a.navboxes??[]).map(id=>({title:wiki.navboxes[id].title,articles:wiki.navboxes[id].articles.map(id=>byId.get(id))}))}}));
+ return [...pages,...Object.entries(wiki.redirects).map(([id,redirect])=>({params:{id},props:{redirect}}))];
+}
+const {article:a,related,hatnotes,options,boxes,redirect}=Astro.props;
+if(redirect)return Astro.redirect('/wiki/'+redirect+'/');
 const source='https://github.com/PhilosophiaAtlas/knowledge-base/blob/'+lock.components['knowledge-base'].ref+'/articles/'+a.path;
 const history='https://github.com/PhilosophiaAtlas/knowledge-base/commits/main/articles/'+a.path;
 ---
@@ -12,7 +17,8 @@ const history='https://github.com/PhilosophiaAtlas/knowledge-base/commits/main/a
 <progress id="reading-progress" class="reading-progress" max="100" value="0" aria-label="Tiến độ đọc" hidden></progress>
 <div data-pagefind-body><h1 data-pagefind-meta="title">{a.title}</h1><p class="subtitle">{a.originalTitle}</p>
 <nav data-pagefind-ignore class="wiki-tabs" aria-label="Công cụ bài viết"><a href={source}>Mã nguồn</a><a href={history}>Lịch sử</a><a href="#backlinks">Liên kết ngược</a></nav>
-<p data-pagefind-ignore class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>
+{hatnotes.length>0&&<div class="hatnote" data-pagefind-ignore>{hatnotes.map(n=><p>{n.text} <a href={'/wiki/'+n.target+'/'}>{n.title}</a>.</p>)}</div>}
+{a.kind==='disambiguation'?<div class="disambiguation-box"><p>Trang định hướng: chọn mục từ phù hợp với ngữ cảnh.</p><ul>{options.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a> <span class="subtitle">{b.originalTitle}</span></li>)}</ul></div>:<p data-pagefind-ignore class="meta">Bài nháp · Chưa được thẩm định học thuật.</p>}
 <div class="reading-toolbar" data-pagefind-ignore><button id="sections-toggle" type="button" hidden>Thu gọn tất cả</button><button id="reading-focus" type="button" aria-pressed="false" hidden>Đọc tập trung</button></div>
 {a.infobox?.length>0&&<table class="infobox" aria-label="Thông tin tóm tắt"><caption>{a.title}</caption><tbody>{a.infobox.map(row=><tr><th scope="row">{row.label}</th><td>{row.value}</td></tr>)}</tbody></table>}
 <article set:html={a.html}/></div>
@@ -20,5 +26,6 @@ const history='https://github.com/PhilosophiaAtlas/knowledge-base/commits/main/a
 <script is:inline>document.getElementById("print-article").addEventListener("click",()=>window.print());document.getElementById("copy-article").addEventListener("click",async()=>{const s=document.getElementById("copy-status");try{await navigator.clipboard.writeText(location.origin+document.getElementById("copy-article").dataset.url);s.textContent="Đã sao chép";}catch{s.textContent="Không sao chép được. Hãy dùng thanh địa chỉ.";}});</script>
 <h2 id="backlinks">Liên kết đến bài này</h2>
 {related.length?<ul>{related.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a></li>)}</ul>:<p>Chưa có liên kết đến.</p>}
+{boxes.map(box=><details class="navbox" open><summary>{box.title}</summary><ul>{box.articles.map(b=><li>{b.id===a.id?<span class="self-link" aria-current="page">{b.title}</span>:<a href={'/wiki/'+b.id+'/'}>{b.title}</a>}</li>)}</ul></details>)}
 <p class="meta">Thể loại: {a.categories.map((c,i)=><>{i>0?' · ':''}<a href={categoryHref(c)}>{c}</a></>)}</p>
 </Layout>

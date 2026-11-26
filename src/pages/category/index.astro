@@ -1,7 +1,10 @@
 ---
 import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import CategoryTree from '../../../.vendor/wiki-ui/src/CategoryTree.astro';
 import {getWiki} from '../../lib/wiki.mjs';
 import {categoryHref} from '../../lib/categories.mjs';
 const wiki=await getWiki();
+const counts=Object.fromEntries(Object.entries(wiki.categories).map(([c,ids])=>[c,ids.length]));
+const roots=Object.keys(wiki.categories).filter(c=>!wiki.categoryParents[c]?.length).sort((a,b)=>a.localeCompare(b,'vi'));
 ---
-<Layout title="Thể loại"><h1>Thể loại</h1><ul class="category-list">{Object.entries(wiki.categories).sort(([a],[b])=>a.localeCompare(b,'vi')).map(([c,ids])=><li><a href={categoryHref(c)}>{c}</a> ({ids.length})</li>)}</ul></Layout>
+<Layout title="Thể loại"><h1>Thể loại</h1><p>Duyệt các nhánh tri thức. Số bài là số mục từ trực tiếp thuộc thể loại.</p><ul class="category-tree">{roots.map(name=><CategoryTree name={name} childrenByName={wiki.categoryChildren} counts={counts} href={categoryHref}/>)}</ul></Layout>
