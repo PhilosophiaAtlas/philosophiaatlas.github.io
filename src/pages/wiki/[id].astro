@@ -1,5 +1,6 @@
 ---
 import Layout from '../../../.vendor/wiki-ui/src/WikiLayout.astro';
+import ResearchWorkspace from '../../../.vendor/wiki-ui/src/ResearchWorkspace.astro';
 import MediaViewer from '../../../.vendor/wiki-ui/src/MediaViewer.astro';
 import PersonalTools from '../../../.vendor/wiki-ui/src/PersonalTools.astro';
 import {getWiki,relatedArticles} from '../../lib/wiki.mjs';
@@ -28,6 +29,7 @@ const history='/history/'+a.id+'/';
 <MediaViewer/>
 <div class="article-tools"><button id="print-article" type="button">In / Lưu PDF</button><button id="copy-article" type="button" data-url={Astro.url.pathname}>Sao chép liên kết</button><span id="copy-status" role="status"></span></div>
 <script is:inline>document.getElementById("print-article").addEventListener("click",()=>window.print());document.getElementById("copy-article").addEventListener("click",async()=>{const s=document.getElementById("copy-status");try{await navigator.clipboard.writeText(location.origin+document.getElementById("copy-article").dataset.url);s.textContent="Đã sao chép";}catch{s.textContent="Không sao chép được. Hãy dùng thanh địa chỉ.";}});</script>
+<ResearchWorkspace article={{id:a.id,title:a.title,revision:a.revision}}/>
 <h2 id="backlinks">Liên kết đến bài này</h2>
 {related.length?<ul>{related.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a></li>)}</ul>:<p>Chưa có liên kết đến.</p>}
 {recommendations.length>0&&<section data-pagefind-ignore><h2>Bài viết liên quan</h2><ul class="related-articles">{recommendations.map(b=><li><a href={'/wiki/'+b.id+'/'}>{b.title}</a><small>{b.reason}</small></li>)}</ul></section>}
